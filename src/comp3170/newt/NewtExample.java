@@ -31,6 +31,7 @@ public class NewtExample implements GLEventListener {
 	
 	private int screenWidth = 600;
 	private int screenHeight = 600;
+	private InputManager input;
 	
 	private Shader shader;
 	private SceneObject root;
@@ -38,6 +39,10 @@ public class NewtExample implements GLEventListener {
 	
 	private float cameraSize = 30f;
 	private Matrix4f projMat = new Matrix4f();
+	
+	public NewtExample(InputManager input) {
+		this.input = input;
+	}
 	
 	@Override
 	public void init(GLAutoDrawable d) {
@@ -50,13 +55,15 @@ public class NewtExample implements GLEventListener {
 		// create scene graph
 		this.root = new SceneObject();
 		
-		this.circle = new Circle();
+		this.circle = new Circle(this.input);
 		this.circle.setParent(this.root);
 	}
 	
 	@Override
 	public void display(GLAutoDrawable d) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
+		
+		this.circle.update();
 		
 		// calculate projection matrix
 		float halfSize = cameraSize / 2f;
@@ -71,6 +78,8 @@ public class NewtExample implements GLEventListener {
 		this.shader.enable();
 		this.shader.setUniform("u_projectionMatrix", this.projMat);
 		this.root.draw(this.shader);
+		
+		this.input.clear();
 	}
 
 	@Override
@@ -103,12 +112,13 @@ public class NewtExample implements GLEventListener {
 		
 		// add capability settings here (e.g. MSAA)
 		
-		// create the window and animator
+		// create the window, animator and input manager
 		GLWindow window = GLWindow.create(capabilities);
 		Animator animator = new Animator(window);
+		InputManager input = new InputManager(window);
 		
 		// create the game instance and configure the window
-		NewtExample game = new NewtExample();
+		NewtExample game = new NewtExample(input);
 		window.addGLEventListener(game);
 		window.setSize(game.screenWidth, game.screenHeight);
 		window.setTitle("COMP3170 Newt Example");
