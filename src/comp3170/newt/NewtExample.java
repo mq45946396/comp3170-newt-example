@@ -1,5 +1,10 @@
 package comp3170.newt;
 
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+
+import java.io.File;
+import java.io.IOException;
+
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
@@ -11,26 +16,45 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.util.Animator;
 
-import static com.jogamp.opengl.GL4.*;
+import comp3170.GLException;
+import comp3170.Shader;
+import comp3170.newt.sceneobjects.SceneObject;
 
 public class NewtExample implements GLEventListener {
 
+	final private File DIRECTORY = new File("src/comp3170/newt"); 
+	final private String VERTEX_SHADER = "vertex.glsl";
+	final private String FRAGMENT_SHADER = "fragment.glsl";
+	
 	private int screenWidth = 600;
 	private int screenHeight = 600;
+	
+	private Shader shader;
+	private SceneObject root;
 	
 	@Override
 	public void init(GLAutoDrawable d) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
 		gl.glClearColor(0.4f, 0.6f, 0.9f, 1f);
+		
+		this.shader = compileShader(VERTEX_SHADER, FRAGMENT_SHADER);
+		
+		// create scene graph
+		this.root = new SceneObject();
 	}
 	
 	@Override
 	public void display(GLAutoDrawable d) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 
+		// clear screen
 		gl.glViewport(0, 0, this.screenWidth, this.screenHeight);
 		gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		// draw the scene graph
+		this.shader.enable();
+		this.root.draw(this.shader);
 	}
 
 	@Override
@@ -42,6 +66,18 @@ public class NewtExample implements GLEventListener {
 	public void reshape(GLAutoDrawable d, int x, int y, int width, int height) {
 		this.screenWidth = width;
 		this.screenHeight = height;
+	}
+	
+	private Shader compileShader(String vertex, String fragment) {
+		try {
+			File vertexShader = new File(DIRECTORY, vertex);
+			File fragmentShader = new File(DIRECTORY, fragment);
+			return new Shader(vertexShader, fragmentShader);
+		} catch (IOException | GLException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return null;
 	}
 
 	public static void main(String[] args) {
