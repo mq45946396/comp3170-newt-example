@@ -77,4 +77,13 @@ public class Circle extends SceneObject {
 		gl.glDrawArrays(GL_TRIANGLE_FAN, 0, this.vertexCount);
 	}
 	
+	public void delete() {
+		GL4 gl = (GL4) GLContext.getCurrentGL();
+		
+		// delete the vertex data from memory when the program
+		// finishes running
+		int[] buf = { this.vertexBuffer };
+		gl.glDeleteBuffers(buf.length, buf, 0);
+	}
+	
 }

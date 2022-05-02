@@ -84,7 +84,7 @@ public class NewtExample implements GLEventListener {
 
 	@Override
 	public void dispose(GLAutoDrawable d) {
-		
+		this.circle.delete();
 	}
 	
 	@Override
