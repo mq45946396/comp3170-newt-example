@@ -53,10 +53,11 @@ public class NewtExample implements GLEventListener {
 		
 		this.shader = compileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 		
-		// create scene graph
+		// create scene graph root
 		this.root = new SceneObject();
 		
-		this.circle = new Circle(this.input);
+		// create circle object
+		this.circle = new Circle();
 		this.circle.setParent(this.root);
 	}
 	
@@ -70,7 +71,7 @@ public class NewtExample implements GLEventListener {
 		this.projMat.setOrtho(-aspect * halfSize, aspect * halfSize, -halfSize, halfSize, -1f, 1f);
 
 		// allow the user to move the circle
-		this.circle.update(this.projMat);
+		this.circle.update(this.input, this.projMat);
 		
 		// clear screen
 		gl.glViewport(0, 0, this.screenWidth, this.screenHeight);
@@ -87,6 +88,7 @@ public class NewtExample implements GLEventListener {
 
 	@Override
 	public void dispose(GLAutoDrawable d) {
+		// clean up resources on close
 		this.circle.delete();
 	}
 	
@@ -109,9 +111,10 @@ public class NewtExample implements GLEventListener {
 	}
 
 	// the main differences in the program are down here:
-	// this method is where the gl context and window are created and configured
+	// this method is where the OpenGL context and window are created and configured
 	
 	// as you can see it is a lot less cluttered and more to the point than swing
+	// (but also the API calls are very similar)
 	
 	public static void main(String[] args) {
 		// create the profile and capabilities

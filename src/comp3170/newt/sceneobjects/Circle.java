@@ -17,10 +17,9 @@ import comp3170.newt.InputManager;
 
 public class Circle extends SceneObject {
 
-	static final int N_SIDES = 16;
+	static final int N_SIDES = 32;
 	
 	private final Vector2f position = new Vector2f(0f, 0f);
-	private final InputManager input;
 	private boolean useMouseMovement = false;
 	
 	private int vertexBuffer;
@@ -29,9 +28,18 @@ public class Circle extends SceneObject {
 	private final Vector4f tempVec4 = new Vector4f();
 	private final Matrix4f tempMat4 = new Matrix4f();
 	
-	public Circle(InputManager input) {
-		this.input = input;
+	public Circle() {
+		/*
+				 *        
+		     *        *   
+		    *    *     *  
+		    *          *  
+		     *        *   
+		        *  *    
 		
+			(just imagine a bunch of lines connecting each
+			point around the edge to the center)
+		 */
 		Vector3f[] vertices = new Vector3f[N_SIDES + 2];
 		
 		// create center of circle
@@ -50,32 +58,36 @@ public class Circle extends SceneObject {
 		this.vertexCount  = vertices.length;
 	}
 	
-	public void update(Matrix4f projMat) {
+	public void update(InputManager input, Matrix4f projMat) {
 		float moveSpeed = 0.2f;
 		
 		if(this.useMouseMovement) {
-			Vector4f mouseNdc = this.input.getMousePosition(this.tempVec4);
+			// convert mouse position from NDC to view space
+			Vector4f mouseNdc = input.getMousePosition(this.tempVec4);
 			Vector4f mouseView = projMat.invert(this.tempMat4).transform(mouseNdc);
 			position.set(mouseView.x, mouseView.y);
 		} else {
-			if(this.input.isKeyDown(KeyEvent.VK_W)) {
+			// move based on keyboard input
+			if(input.isKeyDown(KeyEvent.VK_W)) {
 				this.position.y += moveSpeed;
 			}
-			if(this.input.isKeyDown(KeyEvent.VK_S)) {
+			if(input.isKeyDown(KeyEvent.VK_S)) {
 				this.position.y -= moveSpeed;
 			}
-			if(this.input.isKeyDown(KeyEvent.VK_D)) {
+			if(input.isKeyDown(KeyEvent.VK_D)) {
 				this.position.x += moveSpeed;
 			}
-			if(this.input.isKeyDown(KeyEvent.VK_A)) {
+			if(input.isKeyDown(KeyEvent.VK_A)) {
 				this.position.x -= moveSpeed;
 			}
 		}
 		
-		if(this.input.wasKeyPressed(KeyEvent.VK_SPACE)) {
+		// switch input modes when space is pressed
+		if(input.wasKeyPressed(KeyEvent.VK_SPACE)) {
 			this.useMouseMovement = !this.useMouseMovement;
 		}
 		
+		// copy position to matrix
 		this.getMatrix().identity().translate(this.position.x, this.position.y, 0f);
 	}
 	
