@@ -5,6 +5,8 @@ import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import java.io.File;
 import java.io.IOException;
 
+import org.joml.Matrix4f;
+
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
@@ -18,6 +20,7 @@ import com.jogamp.opengl.util.Animator;
 
 import comp3170.GLException;
 import comp3170.Shader;
+import comp3170.newt.sceneobjects.Circle;
 import comp3170.newt.sceneobjects.SceneObject;
 
 public class NewtExample implements GLEventListener {
@@ -31,6 +34,10 @@ public class NewtExample implements GLEventListener {
 	
 	private Shader shader;
 	private SceneObject root;
+	private Circle circle;
+	
+	private float cameraSize = 30f;
+	private Matrix4f projMat = new Matrix4f();
 	
 	@Override
 	public void init(GLAutoDrawable d) {
@@ -42,11 +49,19 @@ public class NewtExample implements GLEventListener {
 		
 		// create scene graph
 		this.root = new SceneObject();
+		
+		this.circle = new Circle();
+		this.circle.setParent(this.root);
 	}
 	
 	@Override
 	public void display(GLAutoDrawable d) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
+		
+		// calculate projection matrix
+		float halfSize = cameraSize / 2f;
+		float aspect = (float)this.screenWidth / (float)this.screenHeight;
+		this.projMat.setOrtho(-aspect * halfSize, aspect * halfSize, -halfSize, halfSize, -1f, 1f);
 
 		// clear screen
 		gl.glViewport(0, 0, this.screenWidth, this.screenHeight);
@@ -54,6 +69,7 @@ public class NewtExample implements GLEventListener {
 		
 		// draw the scene graph
 		this.shader.enable();
+		this.shader.setUniform("u_projectionMatrix", this.projMat);
 		this.root.draw(this.shader);
 	}
 
