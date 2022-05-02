@@ -40,6 +40,7 @@ public class NewtExample implements GLEventListener {
 	private float cameraSize = 30f;
 	private Matrix4f projMat = new Matrix4f();
 	
+	// no window construction is happening here anymore
 	public NewtExample(InputManager input) {
 		this.input = input;
 	}
@@ -63,13 +64,14 @@ public class NewtExample implements GLEventListener {
 	public void display(GLAutoDrawable d) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		
-		this.circle.update();
-		
 		// calculate projection matrix
 		float halfSize = cameraSize / 2f;
 		float aspect = (float)this.screenWidth / (float)this.screenHeight;
 		this.projMat.setOrtho(-aspect * halfSize, aspect * halfSize, -halfSize, halfSize, -1f, 1f);
 
+		// allow the user to move the circle
+		this.circle.update(this.projMat);
+		
 		// clear screen
 		gl.glViewport(0, 0, this.screenWidth, this.screenHeight);
 		gl.glClear(GL_COLOR_BUFFER_BIT);
@@ -79,6 +81,7 @@ public class NewtExample implements GLEventListener {
 		this.shader.setUniform("u_projectionMatrix", this.projMat);
 		this.root.draw(this.shader);
 		
+		// update the input manager for this frame
 		this.input.clear();
 	}
 
@@ -105,6 +108,11 @@ public class NewtExample implements GLEventListener {
 		return null;
 	}
 
+	// the main differences in the program are down here:
+	// this method is where the gl context and window are created and configured
+	
+	// as you can see it is a lot less cluttered and more to the point than swing
+	
 	public static void main(String[] args) {
 		// create the profile and capabilities
 		GLProfile profile = GLProfile.get(GLProfile.GL4);

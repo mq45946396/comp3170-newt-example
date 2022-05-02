@@ -5,6 +5,7 @@ import static com.jogamp.opengl.GL.GL_TRIANGLE_FAN;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import com.jogamp.newt.event.KeyEvent;
 import com.jogamp.opengl.GL4;
@@ -20,9 +21,13 @@ public class Circle extends SceneObject {
 	
 	private final Vector2f position = new Vector2f(0f, 0f);
 	private final InputManager input;
+	private boolean useMouseMovement = false;
 	
 	private int vertexBuffer;
 	private int vertexCount;
+	
+	private final Vector4f tempVec4 = new Vector4f();
+	private final Matrix4f tempMat4 = new Matrix4f();
 	
 	public Circle(InputManager input) {
 		this.input = input;
@@ -45,20 +50,30 @@ public class Circle extends SceneObject {
 		this.vertexCount  = vertices.length;
 	}
 	
-	public void update() {
+	public void update(Matrix4f projMat) {
 		float moveSpeed = 0.2f;
 		
-		if(this.input.isKeyDown(KeyEvent.VK_W)) {
-			this.position.y += moveSpeed;
+		if(this.useMouseMovement) {
+			Vector4f mouseNdc = this.input.getMousePosition(this.tempVec4);
+			Vector4f mouseView = projMat.invert(this.tempMat4).transform(mouseNdc);
+			position.set(mouseView.x, mouseView.y);
+		} else {
+			if(this.input.isKeyDown(KeyEvent.VK_W)) {
+				this.position.y += moveSpeed;
+			}
+			if(this.input.isKeyDown(KeyEvent.VK_S)) {
+				this.position.y -= moveSpeed;
+			}
+			if(this.input.isKeyDown(KeyEvent.VK_D)) {
+				this.position.x += moveSpeed;
+			}
+			if(this.input.isKeyDown(KeyEvent.VK_A)) {
+				this.position.x -= moveSpeed;
+			}
 		}
-		if(this.input.isKeyDown(KeyEvent.VK_S)) {
-			this.position.y -= moveSpeed;
-		}
-		if(this.input.isKeyDown(KeyEvent.VK_D)) {
-			this.position.x += moveSpeed;
-		}
-		if(this.input.isKeyDown(KeyEvent.VK_A)) {
-			this.position.x -= moveSpeed;
+		
+		if(this.input.wasKeyPressed(KeyEvent.VK_SPACE)) {
+			this.useMouseMovement = !this.useMouseMovement;
 		}
 		
 		this.getMatrix().identity().translate(this.position.x, this.position.y, 0f);
