@@ -46,7 +46,7 @@ public class Circle extends SceneObject {
 		vertices[0] = new Vector3f(0f, 0f, 0f);
 		
 		// generate each point around the perimeter of the circle
-		for(int i = 0; i < N_SIDES + 1; i++) {
+		for(int i = 0; i <= N_SIDES; i++) {
 			double ang = (2d * Math.PI * i) / N_SIDES;
 			float sin = (float)Math.sin(ang);
 			float cos = (float)Math.cos(ang);
